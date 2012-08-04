@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file      startup_stm32f2xx.s
   * @author    MCD Application Team
-  * @version   V1.0.0
-  * @date      18-April-2011
+  * @version   V1.0.2
+  * @date      06-June-2011
   * @brief     STM32F2xx Devices vector table for Atollic TrueSTUDIO toolchain. 
   *            This module performs:
   *                - Set the initial SP
@@ -37,6 +37,8 @@
 
 .global  g_pfnVectors
 .global  Default_Handler
+
+.set FreeRTOS,1
 
 /* start address for the initialization values of the .data section. 
 defined in linker script */
@@ -124,7 +126,6 @@ Infinite_Loop:
   .type  g_pfnVectors, %object
   .size  g_pfnVectors, .-g_pfnVectors
     
-    
 g_pfnVectors:
   .word  _estack
   .word  Reset_Handler
@@ -137,12 +138,20 @@ g_pfnVectors:
   .word  0
   .word  0
   .word  0
+.ifndef FreeRTOS
   .word  SVC_Handler
+.else
+  .word  vPortSVCHandler                     /* FreeRTOS SVC handler          */
+.endif
   .word  DebugMon_Handler
   .word  0
+.ifndef FreeRTOS
   .word  PendSV_Handler
+.else
+  .word  xPortPendSVHandler                  /* FreeRTOS PendSV Handler       */
+.endif
   .word  SysTick_Handler
-  
+
   /* External Interrupts */
   .word     WWDG_IRQHandler                   /* Window WatchDog              */                                        
   .word     PVD_IRQHandler                    /* PVD through EXTI Line detection */                        

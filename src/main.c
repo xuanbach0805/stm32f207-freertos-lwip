@@ -1,71 +1,190 @@
-#include <stm32f2xx.h>
-#include "uart.h"
-#include "ustime.h"
+/**
+  ******************************************************************************
+  * @file    main.c
+  * @author  MCD Application Team
+  * @version V1.0.2
+  * @date    06-June-2011
+  * @brief   Main program body
+  ******************************************************************************
+  * @attention
+  *
+  * THE PRESENT FIRMWARE WHICH IS FOR GUIDANCE ONLY AIMS AT PROVIDING CUSTOMERS
+  * WITH CODING INFORMATION REGARDING THEIR PRODUCTS IN ORDER FOR THEM TO SAVE
+  * TIME. AS A RESULT, STMICROELECTRONICS SHALL NOT BE HELD LIABLE FOR ANY
+  * DIRECT, INDIRECT OR CONSEQUENTIAL DAMAGES WITH RESPECT TO ANY CLAIMS ARISING
+  * FROM THE CONTENT OF SUCH FIRMWARE AND/OR THE USE MADE BY CUSTOMERS OF THE
+  * CODING INFORMATION CONTAINED HEREIN IN CONNECTION WITH THEIR PRODUCTS.
+  *
+  * <h2><center>&copy; COPYRIGHT 2011 STMicroelectronics</center></h2>
+  ******************************************************************************
+  */
+
+/* Includes ------------------------------------------------------------------*/
+#include "stm32f2x7_eth.h"
+#include "netconf.h"
+#include "main.h"
 #include "FreeRTOS.h"
 #include "task.h"
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <uart.h>
+#include "tcpip.h"
+#include "serial_debug.h"
 
+/* Private typedef -----------------------------------------------------------*/
+/* Private define ------------------------------------------------------------*/
 
+/*--------------- LCD Messages ---------------*/
+#define MESSAGE1   "     STM32F2x7      "
+#define MESSAGE2   "  STM32F-2 Series   "
+#define MESSAGE3   " UDP/TCP EchoServer "
+#define MESSAGE4   "                    "
 
-void led_init(void)
+/*--------------- Tasks Priority -------------*/
+#define DHCP_TASK_PRIO   ( tskIDLE_PRIORITY + 2 )      
+#define LED_TASK_PRIO    ( tskIDLE_PRIORITY + 1 )
+
+/* Private macro -------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+extern struct netif xnetif;
+__IO uint32_t test;
+ 
+/* Private function prototypes -----------------------------------------------*/
+void LCD_LED_Init(void);
+extern void tcpecho_init(void);
+extern void udpecho_init(void);
+
+/* Private functions ---------------------------------------------------------*/
+
+/**
+  * @brief  Toggle Led4 task
+  * @param  pvParameters not used
+  * @retval None
+  */
+void ToggleLed4(void * pvParameters)
 {
-RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
-GPIO_Init(GPIOD, &(GPIO_InitTypeDef) {
-    .GPIO_Pin   = GPIO_Pin_12 | GPIO_Pin_13 | GPIO_Pin_14 |GPIO_Pin_15/* | GPIO_Pin_4*/,
-    .GPIO_Mode  = GPIO_Mode_OUT,
-    .GPIO_OType = GPIO_OType_PP,
-    .GPIO_PuPd  = GPIO_PuPd_UP,
-    .GPIO_Speed = GPIO_Speed_100MHz,
-});
-}
-
-void set_leds(int leds)
-{
-    GPIOD->ODR = (GPIOD->ODR & ~0xF000) | ((leds << 12) & 0xF000);
-}
-
-
-void init_task(void *pvParameters)
-{
-    
-    while(1)
+  while(1)
+  {   
+    test = xnetif.ip_addr.addr;
+    /*check if IP address assigned*/
+    if (test !=0)
     {
-        vTaskDelay(477);
-        GPIOD->ODR ^= GPIO_Pin_14;
-
+      for( ;; )
+      {
+        /* toggle LED4 each 250ms */
+        //STM_EVAL_LEDToggle(LED4);
+        vTaskDelay(250);
+      }
     }
-    
-
-    for(;;);
+  }
 }
 
+/**
+  * @brief  Main program.
+  * @param  None
+  * @retval None
+  */
 int main(void)
 {
-    // FreeRTOS assumes 4 preemption- and 0 subpriority-bits
-    //
-    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
+  /*!< At this stage the microcontroller clock setting is already configured to 
+       120 MHz, this is done through SystemInit() function which is called from
+       startup file (startup_stm32f2xx.s) before to branch to application main.
+       To reconfigure the default setting of SystemInit() function, refer to
+       system_stm32f2xx.c file
+     */
 
-    led_init();
-    con_uart_init();
-    printf("FreeRtos \r\n");
+#ifdef SERIAL_DEBUG
+  DebugComPort_Init();
+#endif
+  
+  /*Initialize LCD and Leds */ 
+  LCD_LED_Init();
+  
+  /* configure ethernet (GPIOs, clocks, MAC, DMA) */ 
+  ETH_BSP_Config();
     
-    ETH_BSP_Config();
-    LwIP_Init();
-    
-    
+  /* Initilaize the LwIP stack */
+  LwIP_Init();
+  
+  /* Initialize tcp echo server */
+  tcpecho_init();
+  
+  /* Initialize udp echo server */
+  udpecho_init();
 
-
-
+#ifdef USE_DHCP
+  /* Start DHCPClient */
+  xTaskCreate(LwIP_DHCP_task, "DHCPClient", configMINIMAL_STACK_SIZE * 2, NULL,DHCP_TASK_PRIO, NULL);
+#endif
     
-    
+  /* Start toogleLed4 task : Toggle LED4  every 250ms */
+  xTaskCreate(ToggleLed4, "LED4", configMINIMAL_STACK_SIZE, NULL, LED_TASK_PRIO, NULL);
+  
+  /* Start scheduler */
+  vTaskStartScheduler();
 
-    // Create init task and start the scheduler
-    //
-    xTaskCreate(init_task, (signed char*)"init", 1024, NULL, tskIDLE_PRIORITY, NULL);
-
-    vTaskStartScheduler();
-    
+  /* We should never get here as control is now taken by the scheduler */
+  for( ;; );
 }
+
+/**
+  * @brief  Initializes the STM322xG-EVAL's LCD and LEDs resources.
+  * @param  None
+  * @retval None
+  */
+void LCD_LED_Init(void)
+{
+//#ifdef USE_LCD
+//  /* Initialize the STM322xG-EVAL's LCD */
+//  STM322xG_LCD_Init();
+//#endif
+//
+//  /* Initialize STM322xG-EVAL's LEDs */
+//  STM_EVAL_LEDInit(LED1);
+//  STM_EVAL_LEDInit(LED2);
+//  STM_EVAL_LEDInit(LED3);
+//  STM_EVAL_LEDInit(LED4);
+//
+//  /* leds off */
+//  STM_EVAL_LEDOff(LED1);
+//  STM_EVAL_LEDOff(LED2);
+//  STM_EVAL_LEDOff(LED3);
+//  STM_EVAL_LEDOff(LED4);
+//
+//#ifdef USE_LCD
+//  /* Clear the LCD */
+//  LCD_Clear(Black);
+//
+//  /* Set the LCD Back Color */
+//  LCD_SetBackColor(Black);
+//
+//  /* Set the LCD Text Color */
+//  LCD_SetTextColor(White);
+//
+//  /* Display message on the LCD*/
+//  LCD_DisplayStringLine(Line0, (uint8_t*)MESSAGE1);
+//  LCD_DisplayStringLine(Line1, (uint8_t*)MESSAGE2);
+//  LCD_DisplayStringLine(Line2, (uint8_t*)MESSAGE3);
+//  LCD_DisplayStringLine(Line3, (uint8_t*)MESSAGE4);
+//#endif
+}
+
+#ifdef  USE_FULL_ASSERT
+
+/**
+  * @brief  Reports the name of the source file and the source line number
+  *   where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
+void assert_failed(uint8_t* file, uint32_t line)
+{
+  /* User can add his own implementation to report the file name and line number,
+     ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+
+  /* Infinite loop */
+  while (1)
+  {}
+}
+#endif
+
+
+/******************* (C) COPYRIGHT 2011 STMicroelectronics *****END OF FILE****/

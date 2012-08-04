@@ -2,7 +2,101 @@
 #     0 = turn off optimization. s = optimize for size.
 # 
 
+	RTOS_ROOT=../FreeRTOS
+	CMSIS_DRIVER_DIR=../MyARMLib/CMSIS/include
+	
+	
 OPT = 0
+#############  program name
+	TARGET	= main
+
+# program version
+	VER_MAJOR	= 0
+	VER_MINOR	= 1
+	TOOL	= arm-none-eabi-
+		
+# compile options 
+	MCU			= cortex-m3
+
+
+# Select family 
+# STM32F10X_LD    : STM32 Low density devices
+# STM32F10X_LD_VL : STM32 Low density Value Line devices
+# STM32F10X_MD    : STM32 Medium density devices
+# STM32F10X_MD_VL : STM32 Medium density Value Line devices
+# STM32F10X_HD    : STM32 High density devices
+# STM32F10X_HD_VL : STM32 XL-density devices
+# STM32F10X_CL    : STM32 Connectivity line devices
+# STM32F10X_XL    : STM32 XL-density devices
+	CHIP		= STM32F20X_MD
+
+
+###########################################################
+#  common part for all my cortex-m3 projects
+###########################################################
+
+	BASE		= .
+	CC			= $(TOOL)gcc
+	CXX			= $(TOOL)g++
+	LD			= $(TOOL)g++
+	AS			= $(CC) -x assembler-with-cpp
+	OBJCOPY		= $(TOOL)objcopy
+	OBJDUMP		= $(TOOL)objdump
+	SIZE		= $(TOOL)size -d
+	FLASHER		= openocd
+	RM			= rm -f
+	CP			= cp
+	MD			= mkdir
+
+
+#  dirs
+	SRCDIR		= $(BASE)/src
+	OBJDIR		= $(BASE)/obj
+	EXEDIR		= $(BASE)/exe
+	LSTDIR		= $(BASE)/lst
+	PRJDIR		= $(BASE)/prj
+	BAKDIR		= $(BASE)/bak
+
+#files
+	HEX		= $(EXEDIR)/$(TARGET).hex
+	BIN		= $(EXEDIR)/$(TARGET).bin
+	AXF		= $(EXEDIR)/$(TARGET).axf
+	ELF		= $(EXEDIR)/$(TARGET).elf
+	MAP		= $(LSTDIR)/$(TARGET).map
+	LSS		= $(LSTDIR)/$(TARGET).lss
+	OK		= $(EXEDIR)/$(TARGET).ok
+
+# linker script (chip dependent)
+	LD_SCRIPT	= $(SRCDIR)/$(CHIP).ld
+
+
+# individual source files
+	SRCS	:= 
+
+#calc obj files list
+	OBJS	:= $(SRCS)
+	OBJS	+= $(wildcard $(addsuffix /*.cpp, $(DIRS)))
+	OBJS	+= $(wildcard $(addsuffix /*.c, $(DIRS)))
+	OBJS	+= $(wildcard $(addsuffix /*.S, $(DIRS)))
+	
+	#OBJS	+= $(RTOS_ROOT)/Source/tasks.c
+	#/port.c
+
+#	OBJS	+= ../MyARMLib/STM32/STM32F10x_StdPeriph_Driver/src/stm32f10x_gpio.c 
+#	OBJS	+= ../MyARMLib/STM32/STM32F10x_StdPeriph_Driver/src/stm32f10x_rcc.c 
+#	OBJS	+= $(RTOS_ROOT)/Source/tasks.c
+#	OBJS	+= $(RTOS_ROOT)/Source/list.c 
+#	OBJS	+= $(RTOS_ROOT)/Source/timers.c 
+#	OBJS	+= $(RTOS_ROOT)/Source/queue.c 
+#	OBJS	+= $(RTOS_ROOT)/Source/tasks.c 
+#	OBJS	+= $(RTOS_ROOT)/Source/portable/GCC/ARM_CM3/port.c 
+#	OBJS	+= $(RTOS_ROOT)/Source/portable/MemMang/heap_2.c	
+	OBJS	:= $(notdir $(OBJS))
+	OBJS	:= $(OBJS:.cpp=.o)
+	OBJS	:= $(OBJS:.c=.o)
+	OBJS	:= $(OBJS:.S=.o)
+	OBJS	:= $(patsubst %, $(OBJDIR)/%, $(OBJS))
+
 
 # Object files directory
 # Warning: this will be removed by make clean!
@@ -91,6 +185,7 @@ CPPFLAGS += -I../FreeRTOS/Source/portable/GCC/ARM_CM3
 CPPFLAGS += -I../MyARMLib/CMSIS/include
 CPPFLAGS += -I../MyARMLib/STM32/STM32F2xx/include
 CPPFLAGS += -I../MyARMLib/STM32/STM32F2xx_StdPeriph_Driver/inc
+CPPFLAGS += -I../MyARMLib/STM32/STM32F2x7_ETH_Driver/inc
 CPPFLAGS += -I../MyARMLib/lwip/src/include
 CPPFLAGS += -I../MyARMLib/lwip/src/include/ipv4
 CPPFLAGS += -I../MyARMLib/lwip/src/include/ipv6

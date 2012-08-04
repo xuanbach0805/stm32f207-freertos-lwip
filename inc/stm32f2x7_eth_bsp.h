@@ -29,8 +29,8 @@
 
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32_eval.h"
-#include "stm322xg_eval_lcd.h"
+//#include "stm32_eval.h"
+//#include "stm322xg_eval_lcd.h"
 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/

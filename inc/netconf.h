@@ -2,8 +2,8 @@
   ******************************************************************************
   * @file    netconf.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    31-October-2011 
+  * @version V1.0.2
+  * @date    06-June-2011
   * @brief   This file contains all the functions prototypes for the netconf.c 
   *          file.
   ******************************************************************************
@@ -27,38 +27,7 @@
 #ifdef __cplusplus
  extern "C" {
 #endif
-/* MAC ADDRESS*/
-#define MAC_ADDR0   01
-#define MAC_ADDR1   02
-#define MAC_ADDR2   03
-#define MAC_ADDR3   04
-#define MAC_ADDR4   05
-#define MAC_ADDR5   06
- 
-/*Static IP ADDRESS*/
-#define IP_ADDR0   10
-#define IP_ADDR1   0
-#define IP_ADDR2   0
-#define IP_ADDR3   10
    
-/*NETMASK*/
-#define NETMASK_ADDR0   255
-#define NETMASK_ADDR1   255
-#define NETMASK_ADDR2   255
-#define NETMASK_ADDR3   0
-
-/*Gateway Address*/
-#define GW_ADDR0   10
-#define GW_ADDR1   0
-#define GW_ADDR2   0
-#define GW_ADDR3   1  
-
-
-#undef RMII_MODE
-#define MII_MODE
-#undef PHY_CLOCK_MCO
-
-
 /* Includes ------------------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/

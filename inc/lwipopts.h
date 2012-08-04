@@ -2,11 +2,11 @@
   ******************************************************************************
   * @file    lwipopts.h
   * @author  MCD Application Team
-  * @version V1.0.0
-  * @date    31-October-2011
+  * @version V1.0.2
+  * @date    06-June-2011
   * @brief   lwIP Options Configuration.
   *          This file is based on Utilities\lwip_v1.3.2\src\include\lwip\opt.h 
-  *          and contains the lwIP configuration for the STM32F4x7 demonstration.
+  *          and contains the lwIP configuration for the STM32F2x7 demonstration.
   ******************************************************************************
   * @attention
   *
@@ -50,7 +50,7 @@
 
 /* MEM_SIZE: the size of the heap memory. If the application will send
 a lot of data that needs to be copied, this should be set high. */
-#define MEM_SIZE                (10*1024)
+#define MEM_SIZE                (5*1024)
 
 /* MEMP_NUM_PBUF: the number of memp struct pbufs. If the application
    sends a lot of data out of ROM (or other static memory), this
@@ -112,7 +112,7 @@ a lot of data that needs to be copied, this should be set high. */
 /* Define LWIP_DHCP to 1 if you want DHCP configuration of
    interfaces. DHCP is not implemented in lwIP 0.5.1, however, so
    turning this on does currently not work. */
-#define LWIP_DHCP               0
+#define LWIP_DHCP               1
 
 
 /* ---------- UDP options ---------- */
@@ -122,7 +122,7 @@ a lot of data that needs to be copied, this should be set high. */
 
 /* ---------- Statistics options ---------- */
 #define LWIP_STATS 0
-#undef LWIP_PROVIDE_ERRNO
+#define LWIP_PROVIDE_ERRNO 1
 
 
 /*
@@ -132,7 +132,7 @@ a lot of data that needs to be copied, this should be set high. */
 */
 
 /* 
-The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums by hardware:
+The STM32F2x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums by hardware:
  - To use this feature let the following define uncommented.
  - To disable it and process by CPU comment the  the checksum.
 */
@@ -194,9 +194,7 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
    -----------------------------------
 */
 
-/*#define LWIP_DEBUG 1*/
-/*#define LWIP_PLATFORM_DIAG(x)    printf x*/
-/*#define LWIP_PLATFORM_DIAG(x)    do {printf x;} while(0)*/
+#define LWIP_DEBUG                      0
 
 
 /*
@@ -213,9 +211,6 @@ The STM32F4x7 allows computing and verifying the IP, UDP, TCP and ICMP checksums
 #define DEFAULT_THREAD_STACKSIZE        500
 #define TCPIP_THREAD_PRIO               (configMAX_PRIORITIES - 2)
 
-
-#define LWIP_ARP  1
-#define LWIP_COMPAT_MUTEX 1
 
 
 #endif /* __LWIPOPTS_H__ */
