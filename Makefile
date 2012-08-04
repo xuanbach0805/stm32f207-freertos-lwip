@@ -85,8 +85,9 @@ SOURCES += src/eth/stm32f2x7_eth_irq.c
 OBJECTS  = $(addprefix $(OBJDIR)/,$(addsuffix .o,$(basename $(SOURCES))))
 
 # Place -D, -U or -I options here for C and C++ sources
-CPPFLAGS += -Iinc
+CPPFLAGS += -I./inc
 CPPFLAGS += -I../FreeRTOS/Source/include
+CPPFLAGS += -I../FreeRTOS/Source/portable/GCC/ARM_CM3
 CPPFLAGS += -I../MyARMLib/CMSIS/include
 CPPFLAGS += -I../MyARMLib/STM32/STM32F2xx/include
 CPPFLAGS += -I../MyARMLib/STM32/STM32F2xx_StdPeriph_Driver/inc
@@ -124,7 +125,7 @@ CFLAGS += -Wa,-adhlns=$(OBJDIR)/$(*F).lst
 
 # Optimize use of the single-precision FPU
 #
-CFLAGS += -fsingle-precision-constant
+######CFLAGS += -fsingle-precision-constant
 
 # Misc defines
 CFLAGS += -DGCC_ARMCM4F
@@ -192,11 +193,11 @@ GENDEPFLAGS = -MMD -MP -MF $(OBJDIR)/$(*F).d
 # Combine all necessary flags and optional flags
 # Add target processor to flags.
 #
-#CPU = -mcpu=cortex-m3 -mthumb -mfloat-abi=soft
+CPU = -mcpu=cortex-m3 -mthumb -mfloat-abi=soft
 #CPU = -mcpu=cortex-m4 -mthumb 
 #
 
-CPU = -mcpu=cortex-m4 -mthumb -mfloat-abi=softfp -mfpu=fpv4-sp-d16
+#CPU = -mcpu=cortex-m4 -mthumb -mfloat-abi=softfp -mfpu=fpv4-sp-d16
 #CPU = -march=armv7-m -mthumb -mfloat-abi=softfp -mfpu=fpv4-sp-d16
 
 CFLAGS   += $(CPU)

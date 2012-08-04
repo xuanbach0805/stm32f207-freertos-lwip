@@ -1,6 +1,6 @@
 #include "syscalls.h"
 #include "uart.h"
-#include "stm32f4xx.h"
+#include "stm32f2xx.h"
 #include "FreeRTOS.h"
 #include <unistd.h>
 #include <stdlib.h>

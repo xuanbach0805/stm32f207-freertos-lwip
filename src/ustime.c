@@ -1,6 +1,6 @@
 #include "ustime.h"
 #include <FreeRTOS.h>
-#include "stm32f4xx.h"
+#include "stm32f2xx.h"
 
 /**
  * Get time count in microseconds.
